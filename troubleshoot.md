@@ -1,6 +1,6 @@
-   <div style="width: 880px;  ">
-            <div style="width: 428px;  margin-right: 42px;  display: inline-block;">
-                <div style="width: 404px; background-color:azure; line-height: 18px; font-size: 14px;margin-top: 60px; ">
+   <div style="width:880px;  ">
+            <div style="width:428px;margin-right:42px;display:inline-block;">
+                <div style="width:404px;background-color:azure;line-height:18px; font-size:14px;margin-top:60px; ">
                     <h2>计算</h2>
                     <h3>[如何调整虚拟机的尺寸](./troubleshoot/virtual-machine-how-to-reset-vm-size.md)</h3>
                     更新日期: 12/23/2015
@@ -12,7 +12,7 @@
                     更新日期: 12/18/2015
                     介绍可用性集的概念，演示如何将虚拟机添加到可用性集中。</div>
             </div>
-            <div style="width:410px; float:right">
+            <div style="width:410px;float:right">
                 <div style="width: 404px; background-color: azure; line-height: 18px; font-size: 14px; margin-top: 60px;  ">
                     <h2>数据服务</h2>
                     <h3>
