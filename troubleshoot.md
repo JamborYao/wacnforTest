@@ -2,7 +2,7 @@
         <div style="width: 880px;">
             <div style="width: 428px;  margin-right: 42px;  display: inline-block;">
                 <div style="width: 404px; margin-top: 60px; ">
-                    <p style="font-weight:bold;font-size:40px;">计算</p>
+                    <p style="font-weight:bold;font-size:40px;">计算1</p>
                     <a href="/documentation/articles/troubleshoot/virtual-machine-how-to-reset-vm-size.md" style="font-size:30px;">如何调整虚拟机的尺寸</a>
                     <p style="font-weight:normal;font-size:15px;"> 更新日期: 12/23/2015 </p> 
                     <p style="font-weight:normal;font-size:20px;">介绍如何来调整虚拟机的尺寸，以及我们在调整过程中所需要注意的问题。</p>
