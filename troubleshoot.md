@@ -1,4 +1,8 @@
- <div style="margin: 0px auto;">
+  <div style="margin: 0px auto;">
+        <div style="width:880px">
+            <p style="font-weight:bold;font-size:40px;">故障排除</p>
+            <p style="font-weight:normal;font-size:30px;"> 更新日期: 12/23/2015 </p> 
+        </div>
         <div style="width: 880px;">
             <div style="width: 428px;  margin-right: 42px;  display: inline-block;">
                 <div style="width: 404px; margin-top: 60px; ">
