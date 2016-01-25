@@ -109,7 +109,7 @@ https://msdn.microsoft.com/en-us/library/dn466430.aspx
             DateTime start = DateTime.UtcNow;
             DateTime end = DateTime.UtcNow.AddDays(1);
             string accountName = "willshao";
-            string accountKey = "tgbo/iCw6KMVBSH1T7wrpT1bjoYtWJXGjYU/xnTKSbeg2uUlzelekbcfTrSH3KRGp+Gkwkfbnlhs7Pl2gKn9nw==";
+            string accountKey = "<account key>";
             string signedpermissions = "r";
             string signedstart = DateTime.UtcNow.ToString("O");
             string signedexpiry = DateTime.UtcNow.AddDays(1).ToString("O");
