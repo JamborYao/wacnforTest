@@ -6,7 +6,7 @@
 
 - .Net的方式创建SAS token
 - PowerShell的方式创建SAS token
-- Rest的方式创建SAS token
+- Rest API的方式创建blob的SAS token
 
 
 ##.Net的方式创建SAS token
@@ -19,8 +19,15 @@
 
 >使用Powershell前有关Azure PowerShell的安装、配置和连接到订阅请阅读[这篇文章](http://www.windowsazure.cn/documentation/articles/powershell-install-configure)
 
+下面内容包含：
 
-**如何创建SAS token**
+- 创建容器的临时SAS Token
+- 为blob创建临时SAS Token
+- 根据容器临时SAS Token上传文件
+- 给容器指定存储访问策略
+- 为blob创建具有存储访问策略的SAS Token
+
+**如何为container和blob创建SAS token**
 
 	#定义一些参数
 	$storageAccountName = <storage account name>
@@ -34,32 +41,35 @@
 	$container = New-AzureStorageContainer -Context $storageContext -Name $containerName
 	$cbc = $container.CloudBlobContainer
 	
-	#创建临时SAS (临时SAS和带有存储访问策略的SAS请阅读下面的参考文档)
+	#为容器创建临时SAS (临时SAS和具有存储访问策略的SAS请阅读下面的参考文档)
 	$sasToken = New-AzureStorageContainerSASToken -container $containerName -permission rwl -Context $storageContext
 	write-host $sasToken
 
 	$sasTokenNoWrite = New-AzureStorageContainerSASToken -container $containerName -permission rl -Context $storageContext
-	#临时的SAS token创建成功，下面是使用举例：
+	
+	#为blob创建SAS Token
+	New-AzureStorageBlobSASToken -Container 'sastest' -Blob 'test.txt' -Context $storageContext -Permission rw		
+	
 
-参考文档： [临时SAS和带有存储访问策略的SAS](http://www.windowsazure.cn/documentation/articles/storage-dotnet-shared-access-signature-part-1/)
+参考文档： [临时SAS和具有存储访问策略的SAS](http://www.windowsazure.cn/documentation/articles/storage-dotnet-shared-access-signature-part-1/)
 
-PowerShell指令：[New-AzureStorageContainerSASToken](https://msdn.microsoft.com/en-us/library/azure/dn584416.aspx)		
+PowerShell指令：[New-AzureStorageContainerSASToken](https://msdn.microsoft.com/en-us/library/azure/dn584416.aspx)、
+[New-AzureStorageBlobSASToken](https://msdn.microsoft.com/library/f3833d85-ef4e-449e-8e81-1a2367e39026)		
 
 **如何在已知SAS Token的情况下来使用**
 
-	#在知道SAS token的client端创建存储上下文
-	$storageContextClient = New-AzureStorageContext -StorageAccountName $storageAccountName -SASToken $sasToken
-	#这个存储上下文只可以在容器下做相应的操作并且只能执行在创建过程中服务的权限
+	#在知道blob容器SAS token的client端创建存储上下文
+	$storageContextClient = New-AzureStorageContext -StorageAccountName $storageAccountName -SASToken $sasToken	
+	#这个存储上下文只可以在该容器下做相应的操作并且只能拥有在创建过程中赋予的权限
 	#如果你要继续创建container将会报错
 	New-AzureStorageContainer -Context $storageContextClient -Name 'test1'
 	#错误内容: New-AzureStorageContainer : The remote server returned an error: (403) Forbidden.
+
 	#测试上传文件
 	$ImageToUpload = "D:\test.PNG"
-	Set-AzureStorageBlobContent -container 'sastest' -File $ImageToUpload -Context $storageContextClient
-	
-	#使用带存储策略的SAS Token
-	$storageContextClientWithPolicy = New-AzureStorageContext -StorageAccountName $storageAccountName -SASToken $sas
-	Set-AzureStorageBlobContent -container 'sastestwithpolicy' -File $ImageToUpload -Context $storageContextClientWithPolicy
+	Set-AzureStorageBlobContent -Container 'sastest' -File $ImageToUpload -Context $storageContextClient
+
+	#如果知道Blob的SAS token的话，我们就可以知道完整的blob的url，并可以执行相应权限的操作。		
 	
 结果：
 ![](./SasForBlob/use-sas-token-create-blob.PNG)
@@ -71,7 +81,8 @@ PowerShell指令：[New-AzureStorageContainerSASToken](https://msdn.microsoft.co
 
 ![](./SasForBlob/no-write-permission.PNG)
 
-**创建带有存储访问策略的SAS Token**
+
+**创建具有存储访问策略的blob的SAS Token**
 
 	#定义一些参数
 	$storageAccountName = <storage account name>
@@ -89,7 +100,7 @@ PowerShell指令：[New-AzureStorageContainerSASToken](https://msdn.microsoft.co
 	$policyName = 'policy1'
 	$policy = new-object 'Microsoft.WindowsAzure.Storage.Blob.SharedAccessBlobPolicy'
 	$policy.SharedAccessStartTime = $(Get-Date).ToUniversalTime().AddMinutes(-5)
-	$policy.SharedAccessExpiryTime = $(Get-Date).ToUniversalTime().AddHours(10)
+	$policy.SharedAccessExpiryTime = $(Get-Date).ToUniversalTime().AddDays(10)
 	$policy.Permissions = "Read,Write,List,Delete"
 	$permissions.SharedAccessPolicies.Add($policyName, $policy)
 	$cbc.SetPermissions($permissions);
@@ -97,25 +108,49 @@ PowerShell指令：[New-AzureStorageContainerSASToken](https://msdn.microsoft.co
 	#获取SAS token
 	$sas = $cbc.GetSharedAccessSignature($policy, $policyName)
 	Write-Host 'Shared Access Signature= '$($sas.Substring(1))''
+
+	#为blob创建访问策略为policy1的SAS token
+	New-AzureStorageBlobSASToken -Container 'sastestwithpolicy' -Policy 'policy1' -Blob 'test.txt' -Context $storageContext
 	
+	#如何删除存储访问策略
+	Remove-AzureStorageContainerStoredAccessPolicy -Container "sastestwithpolicy" -context $storageContext -Policy 'policy1'
 
-https://msdn.microsoft.com/en-us/library/dn466430.aspx
+存储策略的好处可以更方便我们管理SAS。它比临时SAS多了以下功能
 
-##Rest的方式创建SAS token
+- 删除存储访问策略吊销SAS
+- 设置存储访问策略的过期时间来吊销SAS
+- 可以通过上述方式批量吊销SAS
+
+关于吊销SAS的更详细信息，请阅读[这篇文章](http://www.windowsazure.cn/documentation/articles/storage-dotnet-shared-access-signature-part-1/)。
+
+##Rest API的方式创建blob的SAS token
+
+参考文档：[共享访问签名的示例](https://msdn.microsoft.com/zh-cn/library/azure/dn140256.aspx)、[建立存储的访问策略](https://msdn.microsoft.com/zh-cn/library/azure/dn140257.aspx)、[构造服务 SAS](https://msdn.microsoft.com/zh-cn/library/azure/dn140255.aspx)
+
+- 通过Rest API方式创建临时SAS
+- 通过Rest API方式创建具有存储访问策略的SAS
+
+####通过Rest API方式创建临时SAS
 
  		public static string GenerateSAS()
-        {
-            string sas = "";
-            DateTime start = DateTime.UtcNow;
-            DateTime end = DateTime.UtcNow.AddDays(1);
-            string accountName = "willshao";
-            string accountKey = "<account key>";
+        {       
+            string accountName = "sas";
+            string accountKey = "<account Key>";
+			#设置访问权限
             string signedpermissions = "r";
+			#设置临时SAS的过期时间
             string signedstart = DateTime.UtcNow.ToString("O");
             string signedexpiry = DateTime.UtcNow.AddDays(1).ToString("O");
-            string canonicalizedresource = "blob/"+accountName+"/test/Capture.PNG";
+			#设置需要访问的资源
+            string canonicalizedresource = "/blob/"+accountName+"/sastestwithpolicy/test.txt";
+			#设置提供访问的IP的范围
+            string signedIP = "";
+			#指定HTTP协议
+            string signedProtocol = "";
             string signedidentifier = "";
+			#指定Rest API版本
             string signedversion = "2015-04-05";
+			#设置响应标头
             string rscc = "";
             string rscd = "file; attachment";
             string rsce = "";
@@ -127,31 +162,89 @@ https://msdn.microsoft.com/en-us/library/dn466430.aspx
                signedexpiry + "\n" +
                canonicalizedresource + "\n" +
                signedidentifier + "\n" +
-               "" + "\n" +
-               "" + "\n" +
+               signedIP + "\n" +
+               signedProtocol + "\n" +
                signedversion + "\n" +
                rscc + "\n" +
                rscd + "\n" +
                rsce + "\n" +
                rscl + "\n" +
                rsct;
+
+			#获取签名（签名是利用 SHA256 算法通过字符串到签名和密钥计算然后使用 Base64 编码进行编码的 HMAC）
             byte[] SignatureBytes = System.Text.Encoding.UTF8.GetBytes(StringToSign);
             System.Security.Cryptography.HMACSHA256 SHA256 = new System.Security.Cryptography.HMACSHA256(Convert.FromBase64String(accountKey));
             string sig = Convert.ToBase64String(SHA256.ComputeHash(SignatureBytes));
-
-            string sasURL = string.Format("http://{0}.blob.core.windows.net/test/Capture.PNG?sv={1}&sr={2}&sig={3}&st={4}&se={5}&sp={6}&rscd={7}&rsct={8}",
-                 HttpUtility.UrlEncode(accountName),
+            
+            string sasURL = string.Format("http://{0}.blob.core.chinacloudapi.cn/sastestwithpolicy/test.txt?sv={1}&sr={2}&sig={3}&st={4}&se={5}&sp={6}&rscd={7}&rsct={8}",
+                HttpUtility.UrlEncode(accountName),
                 HttpUtility.UrlEncode(signedversion),
                 HttpUtility.UrlEncode("b"),
                 HttpUtility.UrlEncode(sig),
                 HttpUtility.UrlEncode(signedstart),
                 HttpUtility.UrlEncode(signedexpiry),
                 HttpUtility.UrlEncode(signedpermissions),
-                  HttpUtility.UrlEncode(rscd),
+                HttpUtility.UrlEncode(rscd),
                 HttpUtility.UrlEncode(rsct)
                 );
-            return sas;
+
+            return sasURL;
         }
 
+####通过Rest API方式创建具有存储访问策略的SAS
+使用上述PowerShell操作过程中创建的存储访问策略"policy1"，有关Rest API方式创建存储访问策略请阅读[这篇文章](https://msdn.microsoft.com/zh-cn/library/azure/dd179391.aspx)。
+
+ 		public static string GenerateSAS()
+        {    
+            string accountName = "sas";
+            string accountKey = "<account key>";
+
+			#设置带存储访问策略的SAS不需要设置开始时间、过期时间、访问权限
+            string signedpermissions = "";
+            string signedstart = "";
+            string signedexpiry = "";
+			
+            string canonicalizedresource = "/blob/"+accountName+"/sastestwithpolicy/test.txt";
+            string signedIP = "";
+            string signedProtocol = "";
+			#指定存储访问策略
+            string signedidentifier = "policy1";
+            string signedversion = "2015-04-05";
+
+            string rscc = "";
+            string rscd = "file; attachment";
+            string rsce = "";
+            string rscl = "";
+            string rsct = "binary";
+
+            string StringToSign = signedpermissions + "\n" +
+               signedstart + "\n" +
+               signedexpiry + "\n" +
+               canonicalizedresource + "\n" +
+               signedidentifier + "\n" +
+               signedIP + "\n" +
+               signedProtocol + "\n" +
+               signedversion + "\n" +
+               rscc + "\n" +
+               rscd + "\n" +
+               rsce + "\n" +
+               rscl + "\n" +
+               rsct;
+
+            byte[] SignatureBytes = System.Text.Encoding.UTF8.GetBytes(StringToSign);
+            System.Security.Cryptography.HMACSHA256 SHA256 = new System.Security.Cryptography.HMACSHA256(Convert.FromBase64String(accountKey));
+            string sig = Convert.ToBase64String(SHA256.ComputeHash(SignatureBytes));
+			#SAS URL去掉开始时间、过期时间和访问权限，增加si
+            string sasURL = string.Format("http://{0}.blob.core.chinacloudapi.cn/sastestwithpolicy/test.txt?si={1}&sv={2}&sr={3}&sig={4}&rscd={5}&rsct={6}",
+               HttpUtility.UrlEncode(accountName),
+               HttpUtility.UrlEncode(signedidentifier),
+               HttpUtility.UrlEncode(signedversion),
+               HttpUtility.UrlEncode("b"),
+               HttpUtility.UrlEncode(sig),
+               HttpUtility.UrlEncode(rscd),
+               HttpUtility.UrlEncode(rsct)
+             );           
+            return sasURL;
+        }
 
 
