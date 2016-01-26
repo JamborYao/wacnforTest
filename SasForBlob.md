@@ -72,6 +72,7 @@ PowerShell指令：[New-AzureStorageContainerSASToken](https://msdn.microsoft.co
 	#如果知道Blob的SAS token的话，我们就可以知道完整的blob的url，并可以执行相应权限的操作。		
 	
 结果：
+
 ![](./SasForBlob/use-sas-token-create-blob.PNG)
 
 **注意**:在创建临时SAS中我们赋予了read、write和list权限，如果没有write权限上述上传将会报错具体如下所示
