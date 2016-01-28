@@ -42,6 +42,8 @@ Azure自动化是通过Windows PowserShell工作流（也成为Runbook）来处�
 
 ![](./connect-mooncake-automation/define-config.PNG)
 
+输入刚才创建的用户名和密码：
+
 ![](./connect-mooncake-automation/input-user-information.PNG)
 
 至此PowerShell的凭据已经创建完成，下面讨论如何来使用（本文主要是使用自动化服务实现开关虚拟机）。
