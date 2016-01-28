@@ -73,14 +73,14 @@ PowerShell指令：[New-AzureStorageContainerSASToken](https://msdn.microsoft.co
 	
 结果：
 
-![](./SasForBlob/use-sas-token-create-blob.PNG)
+![](./create-sas-for-blob/use-sas-token-create-blob.PNG)
 
 **注意**:在创建临时SAS中我们赋予了read、write和list权限，如果没有write权限上述上传将会报错具体如下所示
 
 	$storageContextClientNoWrite = New-AzureStorageContext -StorageAccountName $storageAccountName -SASToken $sasTokenNoWrite
 	Set-AzureStorageBlobContent -container 'sastest' -File $ImageToUpload -Context $storageContextClientNoWrite
 
-![](./SasForBlob/no-write-permission.PNG)
+![](./create-sas-for-blob/no-write-permission.PNG)
 
 
 **创建具有存储访问策略的blob的SAS Token**
