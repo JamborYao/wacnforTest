@@ -30,7 +30,7 @@ Azure自动化是通过Windows PowserShell工作流（也成为Runbook）来处�
 
 ![](./connect-mooncake-automation/create-user3.PNG)
 
-复制记录的密码，然后在Azure门户登录下，第一次登陆需要修改密码。如果使用初始密码作为Runbook的凭证会导致操作失败。
+复制记录的密码，然后在Azure门户登录，第一次登陆需要修改密码。如果使用初始密码作为Runbook的凭证可能会导致操作失败。
 
 然后进入自动化的资产，点击添加设置：
 
@@ -55,7 +55,7 @@ Azure自动化是通过Windows PowserShell工作流（也成为Runbook）来处�
 
 ![](./connect-mooncake-automation/edit-draft.PNG)
 
-在创造的过程中使用下面的指令来实现授权，“Powercredential”为在定义凭据时使用的名称。
+在创作的过程中使用下面的指令来实现授权，“Powercredential”为在定义凭据时使用的名称。
 
 	$Cred = Get-AutomationPSCredential -Name "Powercredential"; 
     Add-AzureAccount -Credential $Cred -Environment AzureChinaCloud;
