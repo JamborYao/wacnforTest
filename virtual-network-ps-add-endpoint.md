@@ -11,7 +11,7 @@
 
 >使用Powershell前有关Azure PowerShell的安装、配置和连接到订阅请阅读[这篇文章](http://www.windowsazure.cn/documentation/articles/powershell-install-configure)
 
-###查看当前虚拟机终结点
+####查看当前虚拟机终结点
 
 相关指令：[Get-AzureVM](https://msdn.microsoft.com/en-us/library/azure/dn495236.aspx)、[Get-AzureEndpoint](https://msdn.microsoft.com/en-us/library/azure/dn495158.aspx)
 
@@ -23,7 +23,7 @@
 
 从上面信息可以看到目前虚拟机上拥有两个终结点：PowerShell和Remote Desktop。现在通过PowerShell增加终结点。
 
-###添加虚拟机终结点
+####添加虚拟机终结点
 
 相关指令：[Add-AzureEndpoint](https://msdn.microsoft.com/en-us/library/azure/dn495300.aspx)、[Update-AzureVM](https://msdn.microsoft.com/en-us/library/azure/dn495230.aspx)
 
